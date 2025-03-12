@@ -1,0 +1,125 @@
+#!/bin/bash
+
+# Perbarui daftar paket
+sudo apt update
+
+# Instalasi Apache2
+echo "Menginstal Apache2..."
+sudo apt install -y apache2
+sudo systemctl enable apache2
+sudo systemctl start apache2
+
+# Instalasi server DNS (BIND9) dan konfigurasi domain nz404.my.id
+echo "Menginstal server DNS BIND9 dan konfigurasi domain nz404.my.id..."
+sudo apt install -y bind9 bind9utils bind9-doc
+sudo systemctl enable bind9
+sudo systemctl start bind9
+
+# Ganti alamat_ip_server dengan alamat IP server Anda
+alamat_ip_server="127.0.0.1" # contoh, ganti dengan IP server anda
+
+sudo sh -c 'echo "zone \"nz404.my.id\" { type master; file \"/etc/bind/db.nz404.my.id\"; };" >> /etc/bind/named.conf.local'
+
+sudo sh -c "cat <<EOF > /etc/bind/db.nz404.my.id
+\$TTL    604800
+@       IN      SOA     ns1.nz404.my.id. admin.nz404.my.id. (
+                                2       ; Serial
+                                604800  ; Refresh
+                                86400   ; Retry
+                                2419200 ; Expire
+                                604800 ) ; Negative Cache TTL
+@       IN      NS      ns1.nz404.my.id.
+ns1     IN      A       ${alamat_ip_server}
+www     IN      A       ${alamat_ip_server}
+EOF"
+
+sudo named-checkconf
+sudo named-checkzone nz404.my.id /etc/bind/db.nz404.my.id
+sudo systemctl restart bind9
+
+# Instalasi server NTP dan konfigurasi zona waktu Jakarta
+echo "Menginstal server NTP dan konfigurasi zona waktu Jakarta..."
+sudo apt install -y ntp
+sudo timedatectl set-timezone Asia/Jakarta
+sudo sed -i 's/^server .*/server 0.id.pool.ntp.org\nserver 1.id.pool.ntp.org\nserver 2.id.pool.ntp.org\nserver 3.id.pool.ntp.org/' /etc/ntp.conf
+sudo systemctl enable ntp
+sudo systemctl restart ntp
+
+# Instalasi Nagios dan konfigurasi port 80
+echo "Menginstal Nagios dan konfigurasi port 80..."
+sudo apt install -y nagios4 nagios-plugins nagios-plugins-basic nagios-plugins-standard
+sudo systemctl enable nagios4
+sudo systemctl start nagios4
+sudo a2enconf nagios4-cgi
+sudo a2enconf nagios4-webui
+sudo systemctl restart apache2
+
+# Instalasi SSH (opsional, biasanya sudah terinstal)
+echo "Memastikan SSH terinstal..."
+sudo apt install -y openssh-server
+sudo systemctl enable ssh
+sudo systemctl start ssh
+
+echo "Instalasi selesai!"#!/bin/bash
+
+# Perbarui daftar paket
+sudo apt update
+
+# Instalasi Apache2
+echo "Menginstal Apache2..."
+sudo apt install -y apache2
+sudo systemctl enable apache2
+sudo systemctl start apache2
+
+# Instalasi server DNS (BIND9) dan konfigurasi domain nz404.my.id
+echo "Menginstal server DNS BIND9 dan konfigurasi domain nz404.my.id..."
+sudo apt install -y bind9 bind9utils bind9-doc
+sudo systemctl enable bind9
+sudo systemctl start bind9
+
+# Ganti alamat_ip_server dengan alamat IP server Anda
+alamat_ip_server="127.0.0.1" # contoh, ganti dengan IP server anda
+
+sudo sh -c 'echo "zone \"nz404.my.id\" { type master; file \"/etc/bind/db.nz404.my.id\"; };" >> /etc/bind/named.conf.local'
+
+sudo sh -c "cat <<EOF > /etc/bind/db.nz404.my.id
+\$TTL    604800
+@       IN      SOA     ns1.nz404.my.id. admin.nz404.my.id. (
+                                2       ; Serial
+                                604800  ; Refresh
+                                86400   ; Retry
+                                2419200 ; Expire
+                                604800 ) ; Negative Cache TTL
+@       IN      NS      ns1.nz404.my.id.
+ns1     IN      A       ${alamat_ip_server}
+www     IN      A       ${alamat_ip_server}
+EOF"
+
+sudo named-checkconf
+sudo named-checkzone nz404.my.id /etc/bind/db.nz404.my.id
+sudo systemctl restart bind9
+
+# Instalasi server NTP dan konfigurasi zona waktu Jakarta
+echo "Menginstal server NTP dan konfigurasi zona waktu Jakarta..."
+sudo apt install -y ntp
+sudo timedatectl set-timezone Asia/Jakarta
+sudo sed -i 's/^server .*/server 0.id.pool.ntp.org\nserver 1.id.pool.ntp.org\nserver 2.id.pool.ntp.org\nserver 3.id.pool.ntp.org/' /etc/ntp.conf
+sudo systemctl enable ntp
+sudo systemctl restart ntp
+
+# Instalasi Nagios dan konfigurasi port 80
+echo "Menginstal Nagios dan konfigurasi port 80..."
+sudo apt install -y nagios4 nagios-plugins nagios-plugins-basic nagios-plugins-standard
+sudo systemctl enable nagios4
+sudo systemctl start nagios4
+sudo a2enconf nagios4-cgi
+sudo a2enconf nagios4-webui
+sudo systemctl restart apache2
+
+# Instalasi SSH (opsional, biasanya sudah terinstal)
+echo "Memastikan SSH terinstal..."
+sudo apt install -y openssh-server
+sudo systemctl enable ssh
+sudo systemctl start ssh
+
+echo "Instalasi selesai!"
